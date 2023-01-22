@@ -1025,7 +1025,7 @@ function cmd_help() {
 			\n**NOTE 3**: Check ${CYAN}https://github.com/neo3587/dupmn/wiki/FAQs${NC} for technical questions and troubleshooting."
 }
 function cmd_update() {
-	#curl -sL https://raw.githubusercontent.com/neo3587/dupmn/master/dupmn_install.sh 3>&3 | bash
+	curl -sL https://raw.githubusercontent.com/dev289/dupmn/master/dupmn_install.sh 3>&3 | bash
 	exit
 }
 
