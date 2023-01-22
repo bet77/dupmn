@@ -45,7 +45,7 @@ NEW_RPC=""
 NEW_KEY=""
 INSTALL_BOOTSTRAP=""
 FORCE_LISTEN=""
-AUTO_IPV6=""
+AUTO_IPV6="1"
 
 
 function echo_json() {
@@ -496,7 +496,7 @@ function cmd_install() {
 
 		$(conf_set_value $new_folder/$COIN_CONFIG "externalip"     "$IP$([[ $mn_port ]] && echo :$mn_port)" 0)
 		$(conf_set_value $new_folder/$COIN_CONFIG "masternodeaddr" "$IP$([[ $mn_port ]] && echo :$mn_port)" 0)
-
+                $(conf_set_value $new_folder/$COIN_CONFIG "bind" "$IP$([[ $mn_port ]] && echo :$mn_port)" 0)
 		if [[ $FORCE_LISTEN == "1" ]]; then
 
 			$(conf_set_value $new_folder/$COIN_CONFIG "bind"   $IP 1)
@@ -1025,11 +1025,49 @@ function cmd_help() {
 			\n**NOTE 3**: Check ${CYAN}https://github.com/neo3587/dupmn/wiki/FAQs${NC} for technical questions and troubleshooting."
 }
 function cmd_update() {
-	curl -sL https://raw.githubusercontent.com/neo3587/dupmn/master/dupmn_install.sh 3>&3 | bash
+	#curl -sL https://raw.githubusercontent.com/neo3587/dupmn/master/dupmn_install.sh 3>&3 | bash
 	exit
 }
 
+function ipv6add() {
+	#Random generator ipv6 addresses within your ipv6 network prefix.
+#!/usr/local/bin/bash
 
+# Copyright
+# Vladislav V. Prodan
+# universite@ukr.net
+# 2011
+#if [[  !$(is_number $1) ]]; then
+#		echo -e "${YELLOW}<size_in_mbytes>${NC} must be a number"
+#		echo_json "{\"error\":\"<size_in_mbytes> must be a number\",\"errcode\":900}"
+#		return
+#fi		
+
+array=( 1 2 3 4 5 6 7 8 9 0 a b c d e f )
+MAXCOUNT=$1
+count=1
+network=2001:470:5285 # your ipv6 network prefix
+
+rnd_ip_block ()
+{
+    a=${array[$RANDOM%16]}${array[$RANDOM%16]}${array[$RANDOM%16]}${array[$RANDOM%16]}
+    b=${array[$RANDOM%16]}${array[$RANDOM%16]}${array[$RANDOM%16]}${array[$RANDOM%16]}
+    c=${array[$RANDOM%16]}${array[$RANDOM%16]}${array[$RANDOM%16]}${array[$RANDOM%16]}
+    d=${array[$RANDOM%16]}${array[$RANDOM%16]}${array[$RANDOM%16]}${array[$RANDOM%16]}
+    e=${array[$RANDOM%16]}${array[$RANDOM%16]}${array[$RANDOM%16]}${array[$RANDOM%16]}
+    echo $network:$a:$b:$c:$d:$e
+}
+
+echo "$MAXCOUNT random IPv6:"
+echo "-----------------"
+while [ "$count" -le $MAXCOUNT ]        # Генерация 20 ($MAXCOUNT) случайных чисел.
+do
+        rnd_ip_block
+        let "count += 1"                # Нарастить счетчик.
+        done
+echo "-----------------"  
+
+}
 function main() {
 
 	function instance_valid() {
@@ -1119,7 +1157,7 @@ function main() {
 					;;
 			esac
 		done
-	}
+	}	
 	function exit_no_param() {
 		# <$1 = param> | <$2 = message>
 		if [[ ! $1 ]]; then
@@ -1178,6 +1216,10 @@ function main() {
 		"iplist")
 			cmd_iplist
 			;;
+		"addipv6")
+            exit_no_param "$2" "${YELLOW}dupmn swapfile <size_in_mbytes>${NC} requires a number as parameter"
+			ipv6add $(stoi $2)
+            ;;
 		"ipadd")
 			exit_no_param "$3" "${YELLOW}dupmn ipadd <ip> <netmask> [interface]${NC} requires a IP, a netmask and a interface name (if there's more than 1)"
 			ip_parse $2
@@ -1187,7 +1229,7 @@ function main() {
 			exit_no_param "$3" "${YELLOW}dupmn ipdel <ip> <netmask> [interface]${NC} requires a IP, a netmask and a interface name (if there's more than 1)"
 			ip_parse $2
 			cmd_ipmod "del" $2 $3 $4
-			;;
+			;;		
 		"rpcchange")
 			exit_no_param "$3" "${YELLOW}dupmn rpcchange <prof_name> <node> [port]${NC} requires a profile name, node number and optionally a port number as parameters"
 			load_profile $2 1

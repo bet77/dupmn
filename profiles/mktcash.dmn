@@ -1,0 +1,8 @@
+COIN_NAME="mktcash"
+COIN_PATH="/usr/local/bin/"
+COIN_DAEMON="mktcashd"
+COIN_CLI="mktcash-cli"
+COIN_FOLDER="/root/.mktcash"
+COIN_CONFIG="mktcash.conf"
+COIN_SERVICE="mktcash.service"
+
